@@ -23,7 +23,7 @@ var chatCmd = &cobra.Command{
 			msg := "Error getting backend: " + err.Error()
 			logger.Error(msg)
 			fmt.Fprintln(os.Stderr, msg)
-			return
+			os.Exit(1)
 		}
 
 		message := strings.Builder{}
@@ -37,7 +37,7 @@ var chatCmd = &cobra.Command{
 			msg := "Error getting response: " + err.Error()
 			logger.Error(msg)
 			fmt.Fprintln(os.Stderr, msg)
-			return
+			os.Exit(1)
 		}
 
 		fmt.Printf("Response: %s\n", resp)
