@@ -1,9 +1,10 @@
-backend: "openai"
+backend: "ollama" # Options: [ openai, ollama ]
 
 openai:
   api_key: "tests"
   api_url: "https://api.openai.com/v1/chat/completions"
 
 ollama:
-  host: "http://localhost:11434/v1/chat/completions"
-  model: "some-model-2b"
+  host: "http://localhost:11434/"
+  model: "gamma3"
+  stream: false

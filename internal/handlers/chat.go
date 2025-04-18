@@ -17,7 +17,7 @@ func Chat(args []string) string {
 	}
 	logger.Debug("Message: " + message.String())
 
-	backend, err := agent.GetBackend(config.Config.Backend)
+	backend, err := agent.GetBackend(config.Config)
 	if err != nil {
 		msg := "Error getting backend: " + err.Error()
 		logger.Error(msg)
