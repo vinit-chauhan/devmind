@@ -3,20 +3,13 @@ package handlers
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/vinit-chauhan/devmind/config"
 	"github.com/vinit-chauhan/devmind/internal/agent"
 	"github.com/vinit-chauhan/devmind/internal/logger"
 )
 
-func Chat(args []string) string {
-	message := strings.Builder{}
-	for _, arg := range args {
-		message.WriteString(arg + " ")
-	}
-	logger.Debug("Message: " + message.String())
-
+func Chat(message string) string {
 	backend, err := agent.GetBackend(config.Config)
 	if err != nil {
 		msg := "Error getting backend: " + err.Error()
@@ -25,7 +18,7 @@ func Chat(args []string) string {
 		os.Exit(1)
 	}
 
-	resp, err := backend.Respond(message.String())
+	resp, err := backend.Respond(message)
 	if err != nil {
 		msg := "Error getting response: " + err.Error()
 		logger.Error(msg)
