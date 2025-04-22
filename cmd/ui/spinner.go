@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -8,12 +9,14 @@ import (
 type Spinner struct {
 	chars []rune
 	stop  chan struct{}
+	ctx   context.Context
 }
 
-func NewSpinner() *Spinner {
+func NewSpinner(ctx context.Context) *Spinner {
 	return &Spinner{
 		chars: []rune{'|', '/', '-', '\\'},
 		stop:  make(chan struct{}),
+		ctx:   ctx,
 	}
 }
 
@@ -23,6 +26,8 @@ func (s *Spinner) Start(msg string) {
 		for {
 			select {
 			case <-s.stop:
+				fmt.Print('\r')
+			case <-s.ctx.Done():
 				fmt.Print('\r')
 			default:
 				fmt.Printf("\r%c %s", s.chars[i%len(s.chars)], msg)
@@ -35,7 +40,5 @@ func (s *Spinner) Start(msg string) {
 
 func (s *Spinner) Stop(msg string) {
 	s.stop <- struct{}{}
-	if msg != "" {
-		fmt.Println(msg)
-	}
+	fmt.Println(msg)
 }

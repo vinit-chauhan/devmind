@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 
@@ -12,14 +11,11 @@ import (
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
-	defer stop()
 
 	// Initialize the configuration
 	config.InitConfig()
 	// Execute the root command
-	go cmd.Execute(ctx)
+	go cmd.Execute(ctx, stop)
 
 	<-ctx.Done()
-
-	fmt.Println("Closing the program")
 }

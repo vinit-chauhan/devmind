@@ -15,7 +15,7 @@ var chatCmd = &cobra.Command{
 	Short: "Chat with the mind",
 	Long:  `Chat with the mind. You can ask it anything and it will try to help you. It is a command line tool that can be used to generate, explain and fix code snippets, complete code, and more.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		spinner := ui.NewSpinner()
+		spinner := ui.NewSpinner(cmd.Context())
 		message := strings.Builder{}
 		for _, arg := range args {
 			message.WriteString(arg + " ")

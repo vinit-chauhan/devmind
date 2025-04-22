@@ -26,7 +26,7 @@ var fileSubCmd = &cobra.Command{
 	Long:  `File to explain. You can provide a file path and it will explain the code in the file to you in detail.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		path := args[0]
-		spinner := ui.NewSpinner()
+		spinner := ui.NewSpinner(cmd.Context())
 		l, _ := cmd.Flags().GetString("lines")
 
 		lines, err := utils.ParseLineRange(l)
