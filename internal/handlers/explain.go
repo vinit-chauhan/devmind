@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
-func Explain(filename string, lr utils.LineRange) (string, error) {
+func Explain(ctx context.Context, filename string, lr utils.LineRange) (string, error) {
 	prompt, err := generatePrompt(filename, lr)
 	if err != nil {
 		msg := "Error generating prompt: " + err.Error()
@@ -27,7 +28,7 @@ func Explain(filename string, lr utils.LineRange) (string, error) {
 		return "", err
 	}
 
-	resp, err := backend.Respond(prompt)
+	resp, err := backend.Respond(ctx, prompt)
 	if err != nil {
 		msg := "Error getting response: " + err.Error()
 		logger.Error(msg)

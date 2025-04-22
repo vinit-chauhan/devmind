@@ -1,47 +1,34 @@
 package ollama
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
-	"strings"
+	"context"
 
+	"github.com/ollama/ollama/api"
 	"github.com/vinit-chauhan/devmind/internal/agent/types"
 )
 
-func (b *OllamaBackend) Respond(prompt string) (types.Readable, error) {
+func (b *OllamaBackend) Respond(ctx context.Context, prompt string) (types.Readable, error) {
 
-	req := OllamaChatRequest{
+	req := api.ChatRequest{
 		Model:  b.conf.Model,
-		Stream: false,
-		Messages: []Message{
+		Stream: &b.conf.Stream,
+		Messages: []api.Message{
 			{Role: "system", Content: SystemPrompt},
 			{Role: "user", Content: prompt},
 		},
 	}
 
-	reqBody, err := json.Marshal(req)
-	if err != nil {
-		return types.EmptyResponse, fmt.Errorf("failed to marshal chat request: %w", err)
-	}
-
-	url := strings.TrimSuffix(b.conf.Host, "/") + "/api/chat"
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
-	if err != nil {
-		return types.EmptyResponse, fmt.Errorf("failed to call Ollama: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return types.EmptyResponse, fmt.Errorf("ollama error [%d]: %s", resp.StatusCode, string(body))
-	}
-
 	var parsed OllamaChatResponse
-	if err := json.NewDecoder(resp.Body).Decode(&parsed); err != nil {
-		return types.EmptyResponse, fmt.Errorf("failed to decode chat response: %w", err)
+	var responseFunc api.ChatResponseFunc = func(cr api.ChatResponse) error {
+		parsed = OllamaChatResponse{
+			Response: cr.Message,
+			Done:     cr.Done,
+		}
+		return nil
+	}
+
+	if err := b.client.Chat(ctx, &req, responseFunc); err != nil {
+		return types.EmptyResponse, err
 	}
 
 	return &parsed, nil

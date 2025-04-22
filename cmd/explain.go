@@ -36,7 +36,7 @@ var fileSubCmd = &cobra.Command{
 		}
 
 		spinner.Start("Thinking...")
-		resp, err := handlers.Explain(path, lines)
+		resp, err := handlers.Explain(cmd.Context(), path, lines)
 		if err != nil {
 			return err
 		}

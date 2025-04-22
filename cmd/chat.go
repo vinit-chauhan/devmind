@@ -23,7 +23,7 @@ var chatCmd = &cobra.Command{
 		logger.Debug("Message: " + message.String())
 
 		spinner.Start("Thinking...")
-		resp, err := handlers.Chat(message.String())
+		resp, err := handlers.Chat(cmd.Context(), message.String())
 		if err != nil {
 			return err
 		}

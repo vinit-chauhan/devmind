@@ -1,5 +1,7 @@
 package types
 
+import "context"
+
 type Backend interface {
-	Respond(prompt string) (Readable, error)
+	Respond(ctx context.Context, prompt string) (Readable, error)
 }
