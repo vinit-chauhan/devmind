@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/vinit-chauhan/devmind/cmd/ui"
 	"github.com/vinit-chauhan/devmind/internal/handlers"
 	"github.com/vinit-chauhan/devmind/internal/utils"
 )
@@ -23,16 +24,26 @@ var fileSubCmd = &cobra.Command{
 	Use:   "file",
 	Short: "File to explain",
 	Long:  `File to explain. You can provide a file path and it will explain the code in the file to you in detail.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		path := args[0]
+		spinner := ui.NewSpinner()
 		l, _ := cmd.Flags().GetString("lines")
+
 		lines, err := utils.ParseLineRange(l)
 		if err != nil {
 			fmt.Println("Error parsing line range:", err)
-			return
+			return err
 		}
 
-		handlers.Explain(path, lines)
+		spinner.Start("Thinking...")
+		resp, err := handlers.Explain(path, lines)
+		if err != nil {
+			return err
+		}
+
+		spinner.Stop("")
+		fmt.Printf("Response: \n%s", resp)
+		return nil
 	},
 }
 

@@ -12,32 +12,29 @@ import (
 	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
-func Explain(filename string, lr utils.LineRange) {
+func Explain(filename string, lr utils.LineRange) (string, error) {
 	prompt, err := generatePrompt(filename, lr)
 	if err != nil {
 		msg := "Error generating prompt: " + err.Error()
 		logger.Error(msg)
-		fmt.Fprintln(os.Stderr, msg)
-		os.Exit(1)
+		return "", err
 	}
 
 	backend, err := agent.GetBackend(config.Config)
 	if err != nil {
 		msg := "Error getting backend: " + err.Error()
 		logger.Error(msg)
-		fmt.Fprintln(os.Stderr, msg)
-		os.Exit(1)
+		return "", err
 	}
 
 	resp, err := backend.Respond(prompt)
 	if err != nil {
 		msg := "Error getting response: " + err.Error()
 		logger.Error(msg)
-		fmt.Fprintln(os.Stderr, msg)
-		os.Exit(1)
+		return "", err
 	}
 
-	fmt.Println(resp.GetResponse())
+	return resp.GetResponse(), nil
 }
 
 func generatePrompt(filename string, lr utils.LineRange) (string, error) {
