@@ -6,5 +6,5 @@ openai:
 
 ollama:
   host: "http://localhost:11434/"
-  model: "gamma3"
+  model: "gemma3"
   stream: false

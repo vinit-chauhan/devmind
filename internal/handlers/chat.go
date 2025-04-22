@@ -33,5 +33,5 @@ func Chat(args []string) string {
 		os.Exit(1)
 	}
 
-	return resp
+	return resp.GetResponse()
 }
