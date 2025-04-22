@@ -19,12 +19,9 @@ func NewOllamaBackend(conf config.OllamaConfig) types.Backend {
 
 func (b *OllamaBackend) Respond(prompt string) (response types.Response, err error) {
 	response = types.EmptyResponse{}
+	req := NewOllamaRequest(b.conf).WithPrompt(prompt)
 
-	reqBody, err := json.Marshal(OllamaRequest{
-		Model:  b.conf.Model,
-		Prompt: prompt,
-		Stream: b.conf.Stream,
-	})
+	reqBody, err := json.Marshal(req)
 	if err != nil {
 		return
 	}
