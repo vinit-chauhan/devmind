@@ -47,14 +47,14 @@ func generatePrompt(filename string, lr utils.LineRange) (string, error) {
 	}
 	defer file.Close()
 
-	logger.Debug("Reading content of file" + filename)
+	logger.Debug("Reading content of file " + filename)
 	content, err := io.ReadAll(file)
 	if err != nil {
 		return "", fmt.Errorf("Error reading file: %s", err.Error())
 	}
 
 	if lr.IsValid() {
-		logger.Debug("Extracting lines from file")
+		logger.Debug("Extracting lines " + lr.String() + " from file " + filename)
 		extractedContent, err := lr.ExtractLines(string(content))
 		if err != nil {
 			return "", fmt.Errorf("Error extracting lines: %s", err.Error())

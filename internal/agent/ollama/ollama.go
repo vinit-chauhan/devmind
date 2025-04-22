@@ -5,6 +5,7 @@ import (
 
 	"github.com/ollama/ollama/api"
 	"github.com/vinit-chauhan/devmind/internal/agent/types"
+	"github.com/vinit-chauhan/devmind/internal/logger"
 )
 
 func (b *OllamaBackend) Respond(ctx context.Context, prompt string) (types.Readable, error) {
@@ -24,6 +25,7 @@ func (b *OllamaBackend) Respond(ctx context.Context, prompt string) (types.Reada
 			Response: cr.Message,
 			Done:     cr.Done,
 		}
+		logger.Debug("Generated response: " + cr.Message.Content)
 		return nil
 	}
 

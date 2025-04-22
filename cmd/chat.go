@@ -28,7 +28,8 @@ var chatCmd = &cobra.Command{
 			return err
 		}
 
-		spinner.Stop(fmt.Sprintf("Response: \n%s", resp))
+		spinner.Stop()
+		fmt.Printf("Response: \n%s", resp)
 		return nil
 	},
 }

@@ -41,7 +41,7 @@ var fileSubCmd = &cobra.Command{
 			return err
 		}
 
-		spinner.Stop("")
+		spinner.Stop()
 		fmt.Printf("Response: \n%s", resp)
 		return nil
 	},
