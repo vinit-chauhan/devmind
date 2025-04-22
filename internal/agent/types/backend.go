@@ -1,5 +1,5 @@
 package types
 
 type Backend interface {
-	Respond(prompt string) (Response, error)
+	Respond(prompt string) (Readable, error)
 }

@@ -1,17 +1,18 @@
 package types
 
-type Response interface {
+type Readable interface {
 	IsDone() bool
 	GetResponse() string
 }
 
 // EmptyResponse is a placeholder for responses that do not return any data.
+type emptyResponse struct{}
 
-type EmptyResponse struct{}
-
-func (r EmptyResponse) IsDone() bool {
+func (r emptyResponse) IsDone() bool {
 	return true
 }
-func (r EmptyResponse) GetResponse() string {
+func (r emptyResponse) GetResponse() string {
 	return ""
 }
+
+var EmptyResponse Readable = emptyResponse{}

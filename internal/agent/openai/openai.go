@@ -11,6 +11,6 @@ func NewOpenAIBackend(conf config.OpenAIConfig) types.Backend {
 	}
 }
 
-func (b *OpenAIBackend) Respond(prompt string) (response types.Response, err error) {
+func (b *OpenAIBackend) Respond(prompt string) (response types.Readable, err error) {
 	return &OpenAIResponse{}, nil
 }

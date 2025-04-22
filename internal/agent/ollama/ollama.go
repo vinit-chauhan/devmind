@@ -3,52 +3,45 @@ package ollama
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
-	"github.com/vinit-chauhan/devmind/config"
 	"github.com/vinit-chauhan/devmind/internal/agent/types"
-	"github.com/vinit-chauhan/devmind/internal/logger"
 )
 
-func NewOllamaBackend(conf config.OllamaConfig) types.Backend {
-	return &OllamaBackend{
-		conf: &conf,
-	}
-}
+func (b *OllamaBackend) Respond(prompt string) (types.Readable, error) {
 
-func (b *OllamaBackend) Respond(prompt string) (response types.Response, err error) {
-	response = types.EmptyResponse{}
-	req := NewOllamaRequest(b.conf).WithPrompt(prompt)
+	req := OllamaChatRequest{
+		Model:  b.conf.Model,
+		Stream: false,
+		Messages: []Message{
+			{Role: "system", Content: SystemPrompt},
+			{Role: "user", Content: prompt},
+		},
+	}
 
 	reqBody, err := json.Marshal(req)
 	if err != nil {
-		return
+		return types.EmptyResponse, fmt.Errorf("failed to marshal chat request: %w", err)
 	}
 
-	endpoint := b.conf.Host
-	if endpoint[len(endpoint)-1] == '/' {
-		endpoint = endpoint[:len(endpoint)-1]
-	}
-	endpoint += "/api/generate"
-
-	resp, err := http.Post(endpoint, "application/json", bytes.NewReader(reqBody))
+	url := strings.TrimSuffix(b.conf.Host, "/") + "/api/chat"
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
-		logger.Error("Error making request to Ollama: " + err.Error())
-		return
+		return types.EmptyResponse, fmt.Errorf("failed to call Ollama: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		respBody, _ := io.ReadAll(resp.Body)
-		logger.Error("Error response from Ollama: " + resp.Status + " : " + string(respBody))
-		return
+		body, _ := io.ReadAll(resp.Body)
+		return types.EmptyResponse, fmt.Errorf("ollama error [%d]: %s", resp.StatusCode, string(body))
 	}
 
-	var parsed OllamaResponse
-	if err = json.NewDecoder(resp.Body).Decode(&parsed); err != nil {
-		logger.Error("Error decoding response from Ollama: " + err.Error())
-		return
+	var parsed OllamaChatResponse
+	if err := json.NewDecoder(resp.Body).Decode(&parsed); err != nil {
+		return types.EmptyResponse, fmt.Errorf("failed to decode chat response: %w", err)
 	}
 
 	return &parsed, nil
