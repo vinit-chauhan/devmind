@@ -10,7 +10,8 @@ A modular, LLM-powered CLI agent that helps developers understand and manipulate
 - [x] Add `.env` config loader (`viper`)
 - [x] Read prompt from CLI flag
 - [ ] Implement `agent/` package for OpenAI API integration
-- [ ] Implement `agent/` package for Ollama API integration
+- [x] Implement `agent/` package for Ollama API integration
+- [x] Send prompt to Ollama and print result
 - [ ] Send prompt to OpenAI and print result
 
 ## 🚧 Phase 2: Context Ingestion Layer
@@ -29,6 +30,7 @@ A modular, LLM-powered CLI agent that helps developers understand and manipulate
 
 ### 🎯 Goal: Build meaningful commands around DevMind capabilities
 
+- [x] `devmind chat <question>` → chat with DevMind
 - [ ] `devmind explain <file>` → explain a code file
 - [ ] `devmind fix <logfile>` → analyze and suggest fix
 - [ ] `devmind run '<natural task>'` → generate bash/Dockerfile/etc
