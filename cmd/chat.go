@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -16,25 +15,20 @@ var chatCmd = &cobra.Command{
 	Long:  `Chat with the mind. You can ask it anything and it will try to help you. It is a command line tool that can be used to generate, explain and fix code snippets, complete code, and more.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		message := strings.Builder{}
+		ctx := cmd.Context()
+		spinner := ctx.Value("spinner").(*ui.Spinner)
 
 		for _, arg := range args {
 			message.WriteString(arg + " ")
 		}
 		logger.Debug("Message: " + message.String())
 
-		ctx := cmd.Context()
-		spinner := ctx.Value("spinner").(*ui.Spinner)
-		if spinner == nil {
-			spinner = ui.NewSpinner(ctx)
-		}
 		spinner.Start("Thinking...")
-
-		resp, err := handlers.Chat(ctx, message.String())
+		_, err := handlers.Chat(ctx, message.String())
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("Response: \n%s", resp)
 		return nil
 	},
 }

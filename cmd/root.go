@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/vinit-chauhan/devmind/cmd/ui"
+	"github.com/vinit-chauhan/devmind/internal/logger"
 )
 
 var rootCmd = &cobra.Command{
@@ -15,12 +15,18 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute(ctx context.Context, stop context.CancelFunc) {
-	defer stop()
-	spinner := ui.NewSpinner(ctx)
-	ctx = context.WithValue(ctx, "spinner", spinner)
+	done := ctx.Value("done").(chan struct{})
+	defer func() {
+		logger.Debug("Closing root command")
+		stop()
+		done <- struct{}{}
+	}()
 
 	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Println(err)
+		logger.Error("Error executing command: " + err.Error())
 		return
 	}
+
+	logger.Debug("Command executed successfully")
 }

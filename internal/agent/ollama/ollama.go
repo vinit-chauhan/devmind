@@ -6,30 +6,30 @@ import (
 
 	"github.com/ollama/ollama/api"
 	"github.com/vinit-chauhan/devmind/internal/agent/types"
+	"github.com/vinit-chauhan/devmind/internal/consumer"
 	"github.com/vinit-chauhan/devmind/internal/logger"
 )
 
+var (
+	tknCh  = make(chan string, 16)
+	doneCh = make(chan struct{}, 1)
+	errCh  = make(chan error, 1)
+)
+
 func (b *OllamaBackend) Respond(ctx context.Context, prompt string) (types.Readable, error) {
-
-	req := api.ChatRequest{
-		Model: b.conf.Model,
-		Messages: []api.Message{
-			{Role: "system", Content: SystemPrompt},
-			{Role: "user", Content: prompt},
-		},
-	}
-
-	full := strings.Builder{}
-	tknCh := make(chan string, 16)
-	doneCh := make(chan struct{}, 1)
-	errCh := make(chan error, 1)
-	defer close(errCh)
 	var parsed OllamaChatResponse
+	full := strings.Builder{}
+	defer func() {
+		close(errCh)
+	}()
 
-	go Produce(ctx, b, &req, tknCh, doneCh, errCh)
+	// Produce the response in a goroutine
+	go Produce(ctx, b, prompt)
 
-	go Consume(ctx, tknCh, doneCh, &full)
+	// Print the response as it comes to stdout
+	go consumer.Consume(ctx, tknCh, doneCh, &full)
 
+	// Wait for the response to finish
 	<-doneCh
 
 	parsed.Response = api.Message{
@@ -43,16 +43,34 @@ func (b *OllamaBackend) Respond(ctx context.Context, prompt string) (types.Reada
 	return &parsed, nil
 }
 
-func Produce(ctx context.Context, b *OllamaBackend, req *api.ChatRequest, tknCh chan string, doneCh chan struct{}, errCh chan error) {
+func Produce(ctx context.Context, b *OllamaBackend, prompt string) {
+	defer func() {
+		logger.Debug("Closing Ollama Producer")
+		close(tknCh)
+	}()
+
 	callbackFunc := func(cr api.ChatResponse) error {
-		tknCh <- cr.Message.Content
-		return nil
+		select {
+		case <-ctx.Done():
+			logger.Debug("Context done in Ollama chat")
+			return nil
+		case tknCh <- cr.Message.Content:
+			return nil
+		}
+
 	}
 
-	err := b.client.Chat(ctx, req, callbackFunc)
+	req := api.ChatRequest{
+		Model: b.conf.Model,
+		Messages: []api.Message{
+			{Role: "system", Content: SystemPrompt},
+			{Role: "user", Content: prompt},
+		},
+	}
+
+	err := b.client.Chat(ctx, &req, callbackFunc)
 	if err != nil {
 		logger.Error("Error in Ollama chat: " + err.Error())
 		errCh <- err
 	}
-	close(tknCh)
 }
