@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/vinit-chauhan/devmind/cmd/ui"
 )
 
 var rootCmd = &cobra.Command{
@@ -15,6 +16,9 @@ var rootCmd = &cobra.Command{
 
 func Execute(ctx context.Context, stop context.CancelFunc) {
 	defer stop()
+	spinner := ui.NewSpinner(ctx)
+	ctx = context.WithValue(ctx, "spinner", spinner)
+
 	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Println(err)
 		return

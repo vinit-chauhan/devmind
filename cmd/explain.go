@@ -14,16 +14,21 @@ var explainCmd = &cobra.Command{
 	Short: "Explain a code snippet",
 	Long:  `Explain a code snippet. You can provide a code snippet and it will explain it to you in detail. It is a command line tool that can be used to generate, explain and fix code snippets, complete code, and more.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		spinner := ui.NewSpinner(cmd.Context())
 		l, _ := cmd.Flags().GetString("lines")
 		path, _ := cmd.Flags().GetString("file")
 		var prompt string
+
+		ctx := cmd.Context()
+		spinner := ctx.Value("spinner").(*ui.Spinner)
+		if spinner == nil {
+			spinner = ui.NewSpinner(ctx)
+		}
+		spinner.Start("Reading file...")
 
 		if path == "" {
 			fmt.Println("Error: file path is required")
 			return fmt.Errorf("file path is required")
 		} else {
-			spinner.Start("Reading file...")
 			lines, err := utils.ParseLineRange(l)
 			if err != nil {
 				fmt.Println("Error parsing line range:", err)
@@ -40,12 +45,11 @@ var explainCmd = &cobra.Command{
 		}
 
 		spinner.Start("Thinking...")
-		resp, err := handlers.Explain(cmd.Context(), prompt)
+		resp, err := handlers.Explain(ctx, prompt)
 		if err != nil {
 			return err
 		}
 
-		spinner.Stop()
 		fmt.Printf("Response: \n%s", resp)
 		return nil
 	},
