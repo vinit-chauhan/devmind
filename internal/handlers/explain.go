@@ -13,13 +13,7 @@ import (
 	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
-func Explain(ctx context.Context, filename string, lr utils.LineRange) (string, error) {
-	prompt, err := generatePrompt(filename, lr)
-	if err != nil {
-		msg := "Error generating prompt: " + err.Error()
-		logger.Error(msg)
-		return "", err
-	}
+func Explain(ctx context.Context, prompt string) (string, error) {
 
 	backend, err := agent.GetBackend(config.Config)
 	if err != nil {
@@ -38,30 +32,34 @@ func Explain(ctx context.Context, filename string, lr utils.LineRange) (string, 
 	return resp.GetResponse(), nil
 }
 
-func generatePrompt(filename string, lr utils.LineRange) (string, error) {
+func ReadFileContent(filename string, lr utils.LineRange) ([]byte, error) {
 	logger.Debug(fmt.Sprintf("Explaining lines %d-%d of file %s", lr.Start, lr.End, filename))
+
 	file, err := os.OpenFile(filename, os.O_RDONLY, 0)
 	if err != nil {
-		return "", fmt.Errorf("Error opening file: %s", err.Error())
-
+		return nil, fmt.Errorf("Error opening file: %s", err.Error())
 	}
 	defer file.Close()
 
 	logger.Debug("Reading content of file " + filename)
 	content, err := io.ReadAll(file)
 	if err != nil {
-		return "", fmt.Errorf("Error reading file: %s", err.Error())
+		return nil, fmt.Errorf("Error reading file: %s", err.Error())
 	}
 
 	if lr.IsValid() {
 		logger.Debug("Extracting lines " + lr.String() + " from file " + filename)
 		extractedContent, err := lr.ExtractLines(string(content))
 		if err != nil {
-			return "", fmt.Errorf("Error extracting lines: %s", err.Error())
+			return nil, fmt.Errorf("Error extracting lines: %s", err.Error())
 		}
 		content = []byte(extractedContent)
 	}
 
+	return content, nil
+}
+
+func GeneratePrompt(content []byte) string {
 	prompt := strings.Builder{}
 	prompt.WriteString("Explain the following code snippet in detail:\n\n")
 	prompt.WriteString("```go\n")
@@ -69,5 +67,5 @@ func generatePrompt(filename string, lr utils.LineRange) (string, error) {
 	prompt.WriteString("```\n\n")
 	prompt.WriteString("Only provide a detailed explanation of the code snippet above.")
 
-	return prompt.String(), nil
+	return prompt.String()
 }
