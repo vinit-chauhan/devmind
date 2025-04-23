@@ -50,12 +50,14 @@ func Produce(ctx context.Context, b *OllamaBackend, prompt string) {
 	}()
 
 	callbackFunc := func(cr api.ChatResponse) error {
-		select {
-		case <-ctx.Done():
-			logger.Debug("Context done in Ollama chat")
-			return nil
-		case tknCh <- cr.Message.Content:
-			return nil
+		for {
+			select {
+			case <-ctx.Done():
+				logger.Debug("Context done in Ollama chat")
+				return context.Canceled
+			case tknCh <- cr.Message.Content:
+				return nil
+			}
 		}
 
 	}

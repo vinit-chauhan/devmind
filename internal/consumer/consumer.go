@@ -25,7 +25,7 @@ func Consume(ctx context.Context, tknCh <-chan string, doneCh chan<- struct{}, f
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Fprintln(os.Stdout, "Request cancelled")
+			fmt.Fprint(os.Stdout, "\nRequest cancelled")
 			return
 
 		case tok, ok := <-tknCh:
