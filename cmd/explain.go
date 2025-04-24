@@ -26,7 +26,7 @@ var explainCmd = &cobra.Command{
 			return err
 		}
 		logger.Debug("Generating prompt...")
-		msgs := handlers.GeneratePrompt(content)
+		msgs := handlers.GenerateExplainPrompt(string(content))
 		spinner.Stop()
 
 		logger.Debug("Explaining the content...")

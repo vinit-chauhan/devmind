@@ -10,8 +10,9 @@ import (
 	"github.com/vinit-chauhan/devmind/internal/logger"
 )
 
-func Consume(ctx context.Context, tknCh <-chan string, doneCh chan<- struct{}, full *strings.Builder) {
+func Consume(ctx context.Context, tknCh <-chan string, doneCh chan<- struct{}) {
 	spinner, _ := ctx.Value("spinner").(*ui.Spinner)
+	response := strings.Builder{}
 
 	defer func() {
 		logger.Debug("Closing the consumer")
@@ -26,11 +27,14 @@ func Consume(ctx context.Context, tknCh <-chan string, doneCh chan<- struct{}, f
 		select {
 		case <-ctx.Done():
 			fmt.Fprint(os.Stdout, "\nRequest cancelled")
+			logger.Debug("Context done in consumer")
+			logger.Debug("Response: " + response.String())
 			return
 
 		case tok, ok := <-tknCh:
 			if !ok {
 				logger.Debug("Channel closed")
+				logger.Debug("Response: " + response.String())
 				return
 			}
 			if spinner != nil {
@@ -38,7 +42,7 @@ func Consume(ctx context.Context, tknCh <-chan string, doneCh chan<- struct{}, f
 				spinner = nil
 			}
 			fmt.Fprint(os.Stdout, tok)
-			full.WriteString(tok)
+			response.WriteString(tok)
 		}
 	}
 }

@@ -10,17 +10,12 @@ import (
 	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
-func Chat(ctx context.Context, message string) (string, error) {
+func Chat(ctx context.Context, msgs []types.Message) (string, error) {
 	backend, err := agent.GetBackend(config.Config)
 	if err != nil {
 		msg := "Error getting backend: " + err.Error()
 		logger.Error(msg)
 		return "", err
-	}
-
-	msgs := []types.Message{
-		{Role: "system", Content: utils.SystemPrompt},
-		{Role: "user", Content: message},
 	}
 
 	resp, err := backend.Respond(ctx, msgs)
@@ -31,4 +26,11 @@ func Chat(ctx context.Context, message string) (string, error) {
 	}
 
 	return resp.GetResponse(), nil
+}
+
+func GenerateChatPrompt(prompt string) []types.Message {
+	return []types.Message{
+		{Role: "system", Content: utils.SystemPrompt},
+		{Role: "user", Content: prompt},
+	}
 }

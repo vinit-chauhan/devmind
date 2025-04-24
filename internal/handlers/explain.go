@@ -30,11 +30,11 @@ func Explain(ctx context.Context, msgs []types.Message) (string, error) {
 	return resp.GetResponse(), nil
 }
 
-func GeneratePrompt(content []byte) []types.Message {
+func GenerateExplainPrompt(content string) []types.Message {
 	prompt := strings.Builder{}
 	prompt.WriteString("Explain the following code snippet in detail:\n\n")
 	prompt.WriteString("```go\n")
-	prompt.Write(content)
+	prompt.WriteString(content)
 	prompt.WriteString("```\n\n")
 	prompt.WriteString("Only provide a detailed explanation of the code snippet above.")
 

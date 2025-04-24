@@ -17,33 +17,32 @@ var (
 )
 
 func (b *OllamaBackend) Respond(ctx context.Context, msgs []types.Message) (types.Readable, error) {
-	var parsed OllamaChatResponse
 	full := strings.Builder{}
 	defer func() {
 		close(errCh)
 	}()
 
 	// Produce the response in a goroutine
-	go Produce(ctx, b, msgs)
+	go Produce(ctx, b, msgs, &full)
 
 	// Print the response as it comes to stdout
-	go consumer.Consume(ctx, tknCh, doneCh, &full)
+	go consumer.Consume(ctx, tknCh, doneCh)
 
 	// Wait for the response to finish
 	<-doneCh
 
-	parsed.Response = api.Message{
-		Role:    "assistant",
-		Content: full.String(),
+	parsed := &OllamaChatResponse{
+		Response: api.Message{
+			Role:    "assistant",
+			Content: full.String(),
+		},
+		Done: true,
 	}
-	parsed.Done = true
 
-	logger.Debug("Ollama response: " + full.String())
-
-	return &parsed, nil
+	return parsed, nil
 }
 
-func Produce(ctx context.Context, b *OllamaBackend, msgs []types.Message) {
+func Produce(ctx context.Context, b *OllamaBackend, msgs []types.Message, full *strings.Builder) {
 	defer func() {
 		logger.Debug("Closing Ollama Producer")
 		close(tknCh)
@@ -56,6 +55,7 @@ func Produce(ctx context.Context, b *OllamaBackend, msgs []types.Message) {
 				logger.Debug("Context done in Ollama chat")
 				return context.Canceled
 			case tknCh <- cr.Message.Content:
+				full.WriteString(cr.Message.Content)
 				return nil
 			}
 		}
