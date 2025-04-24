@@ -16,7 +16,7 @@ var (
 	errCh  = make(chan error, 1)
 )
 
-func (b *OllamaBackend) Respond(ctx context.Context, prompt string) (types.Readable, error) {
+func (b *OllamaBackend) Respond(ctx context.Context, msgs []types.Message) (types.Readable, error) {
 	var parsed OllamaChatResponse
 	full := strings.Builder{}
 	defer func() {
@@ -24,7 +24,7 @@ func (b *OllamaBackend) Respond(ctx context.Context, prompt string) (types.Reada
 	}()
 
 	// Produce the response in a goroutine
-	go Produce(ctx, b, prompt)
+	go Produce(ctx, b, msgs)
 
 	// Print the response as it comes to stdout
 	go consumer.Consume(ctx, tknCh, doneCh, &full)
@@ -43,7 +43,7 @@ func (b *OllamaBackend) Respond(ctx context.Context, prompt string) (types.Reada
 	return &parsed, nil
 }
 
-func Produce(ctx context.Context, b *OllamaBackend, prompt string) {
+func Produce(ctx context.Context, b *OllamaBackend, msgs []types.Message) {
 	defer func() {
 		logger.Debug("Closing Ollama Producer")
 		close(tknCh)
@@ -62,12 +62,17 @@ func Produce(ctx context.Context, b *OllamaBackend, prompt string) {
 
 	}
 
+	messages := make([]api.Message, len(msgs))
+	for _, msg := range msgs {
+		messages = append(messages, api.Message{
+			Role:    msg.Role,
+			Content: msg.Content,
+		})
+	}
+
 	req := api.ChatRequest{
-		Model: b.conf.Model,
-		Messages: []api.Message{
-			{Role: "system", Content: SystemPrompt},
-			{Role: "user", Content: prompt},
-		},
+		Model:    b.conf.Model,
+		Messages: messages,
 	}
 
 	err := b.client.Chat(ctx, &req, callbackFunc)

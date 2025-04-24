@@ -13,6 +13,6 @@ func NewOpenAIBackend(conf config.OpenAIConfig) types.Backend {
 	}
 }
 
-func (b *OpenAIBackend) Respond(ctx context.Context, prompt string) (response types.Readable, err error) {
+func (b *OpenAIBackend) Respond(ctx context.Context, msgs []types.Message) (response types.Readable, err error) {
 	return &OpenAIResponse{}, nil
 }

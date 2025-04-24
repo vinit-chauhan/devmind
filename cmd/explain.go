@@ -14,7 +14,6 @@ var explainCmd = &cobra.Command{
 	Long:    `Explain code from a file or stdin. You can specify the line range to explain using the -l flag. If no file is specified, it will read from stdin.`,
 	Example: `devmind explain -f <file> -l <line range>`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		var prompt string
 		ctx := cmd.Context()
 		spinner := ctx.Value("spinner").(*ui.Spinner)
 
@@ -27,12 +26,12 @@ var explainCmd = &cobra.Command{
 			return err
 		}
 		logger.Debug("Generating prompt...")
-		prompt = handlers.GeneratePrompt(content)
+		msgs := handlers.GeneratePrompt(content)
 		spinner.Stop()
 
 		logger.Debug("Explaining the content...")
 		spinner.Start("Thinking...")
-		_, err = handlers.Explain(ctx, prompt)
+		_, err = handlers.Explain(ctx, msgs)
 		if err != nil {
 			return err
 		}

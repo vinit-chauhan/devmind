@@ -5,7 +5,9 @@ import (
 
 	"github.com/vinit-chauhan/devmind/config"
 	"github.com/vinit-chauhan/devmind/internal/agent"
+	"github.com/vinit-chauhan/devmind/internal/agent/types"
 	"github.com/vinit-chauhan/devmind/internal/logger"
+	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
 func Chat(ctx context.Context, message string) (string, error) {
@@ -16,7 +18,12 @@ func Chat(ctx context.Context, message string) (string, error) {
 		return "", err
 	}
 
-	resp, err := backend.Respond(ctx, message)
+	msgs := []types.Message{
+		{Role: "system", Content: utils.SystemPrompt},
+		{Role: "user", Content: message},
+	}
+
+	resp, err := backend.Respond(ctx, msgs)
 	if err != nil {
 		msg := "Error getting response: " + err.Error()
 		logger.Error(msg)
