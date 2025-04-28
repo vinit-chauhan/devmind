@@ -7,6 +7,7 @@ import (
 	"github.com/vinit-chauhan/devmind/cmd/ui"
 	"github.com/vinit-chauhan/devmind/internal/handlers"
 	"github.com/vinit-chauhan/devmind/internal/logger"
+	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
 var chatCmd = &cobra.Command{
@@ -22,9 +23,17 @@ var chatCmd = &cobra.Command{
 
 		spinner.Start("Thinking...")
 		msgs := handlers.GenerateChatPrompt(message)
-		_, err := handlers.Chat(ctx, msgs)
+		resp, err := handlers.Chat(ctx, msgs)
 		if err != nil {
 			return err
+		}
+
+		if file, _ := cmd.Flags().GetString("output"); file != "" {
+			// write to file
+			err := utils.WriteToFile(file, []byte(resp))
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
@@ -33,4 +42,5 @@ var chatCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(chatCmd)
+	chatCmd.Flags().StringP("output", "o", "", "Output file to write the chat to")
 }

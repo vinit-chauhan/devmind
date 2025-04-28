@@ -12,7 +12,7 @@ func init() {
 	log_path := "devmind.log"
 	log_file, err := os.OpenFile(log_path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		fmt.Println("Error opening log file:", err)
+		fmt.Fprintln(os.Stderr, "Error opening log file:", err)
 		return
 	}
 

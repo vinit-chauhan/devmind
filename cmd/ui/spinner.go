@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 )
@@ -40,7 +41,7 @@ func (s *Spinner) Start(msg string) {
 				s.done <- struct{}{}
 				return
 			default:
-				fmt.Printf("\r%c %s", s.chars[i%len(s.chars)], msg)
+				fmt.Fprintf(os.Stderr, "\r%c %s", s.chars[i%len(s.chars)], msg)
 				i++
 				time.Sleep(100 * time.Millisecond)
 			}
@@ -55,5 +56,5 @@ func (s *Spinner) Stop() {
 
 func (s *Spinner) clearLine() {
 	clearLen := len(s.msg) + 4 // char + space + msg
-	fmt.Print("\r" + strings.Repeat(" ", clearLen) + "\r")
+	fmt.Fprint(os.Stderr, "\r"+strings.Repeat(" ", clearLen)+"\r")
 }

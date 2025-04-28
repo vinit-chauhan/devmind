@@ -31,9 +31,17 @@ var explainCmd = &cobra.Command{
 
 		logger.Debug("Explaining the content...")
 		spinner.Start("Thinking...")
-		_, err = handlers.Explain(ctx, msgs)
+		resp, err := handlers.Explain(ctx, msgs)
 		if err != nil {
 			return err
+		}
+
+		if file, _ := cmd.Flags().GetString("output"); file != "" {
+			// write to file
+			err := utils.WriteToFile(file, []byte(resp))
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
@@ -43,6 +51,7 @@ var explainCmd = &cobra.Command{
 func init() {
 	explainCmd.Flags().StringP("lines", "l", "", "line range to explain (eg. 1-10)")
 	explainCmd.Flags().StringP("file", "f", "", "file to explain")
+	explainCmd.Flags().StringP("output", "o", "", "Output file to write the explanation to")
 
 	rootCmd.AddCommand(explainCmd)
 }

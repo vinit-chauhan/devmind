@@ -7,9 +7,10 @@ import (
 	"github.com/vinit-chauhan/devmind/cmd/ui"
 	"github.com/vinit-chauhan/devmind/internal/handlers"
 	"github.com/vinit-chauhan/devmind/internal/logger"
+	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
-var summarize = &cobra.Command{
+var summarizeCmd = &cobra.Command{
 	Use:   "summarize",
 	Short: "Summarize code from a file or stdin",
 	Long:  `Summarize the content provided in the command line arguments.`,
@@ -22,15 +23,24 @@ var summarize = &cobra.Command{
 
 		spinner.Start("Thinking...")
 		msgs := handlers.GenerateSummarizePrompt(text)
-		_, err := handlers.Summarize(ctx, msgs)
+		resp, err := handlers.Summarize(ctx, msgs)
 		if err != nil {
 			return err
 		}
 
+		if file, _ := cmd.Flags().GetString("output"); file != "" {
+			// write to file
+			err := utils.WriteToFile(file, []byte(resp))
+			if err != nil {
+				return err
+			}
+		}
 		return nil
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(summarize)
+	rootCmd.AddCommand(summarizeCmd)
+	summarizeCmd.Flags().StringP("output", "o", "", "Output file to write the summary to")
+
 }

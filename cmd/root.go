@@ -11,7 +11,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "devmind",
 	Short: "A mind that helps you with all things development",
-	Long:  `A mind that helps you with all things development. It can help you with code generation, code completion, and more. It is a command line tool that can be used to generate, explain and fix code snippets, complete code, and more.`,
+	Long:  `A mind that helps you with all things development. It can help you with code generation, code completion, and more. It is a command line tool that can be used to generate, explain and fix code snippets, complete code, and more. to store the response redirect the output to a file using the redirect operation flag.`,
 }
 
 func Execute(ctx context.Context, stop context.CancelFunc) {
