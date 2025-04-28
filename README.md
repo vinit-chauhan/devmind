@@ -4,28 +4,45 @@
 
 > Think of it as `copilot`, but for your terminal – with deep integration into your codebase, shell, and dev tools.
 
+## List of Commands
+
+| Command             | Description                          |
+| ------------------- | ------------------------------------ |
+| `devmind chat`      | Chat with your project (With memory) |
+| `devmind explain`   | Explain a source code file           |
+| `devmind summarize` | Summarize code, logs, or text        |
+| `devmind generate`  | Generate files based on descriptions |
+| ------------------- | ------------------------------------ |
+
 ## 🚀 Features
-- 🧠 Explain source code files (`.go`, `.py`, `.js`...)
-- 🪵 Analyze and explain logs / error messages
-- 🧪 Suggest shell fixes for Git errors, Docker issues, etc.
-- 🧬 Contextual awareness: env vars, open files, Git diffs
-- 🔌 Pluggable backends: OpenAI, Ollama, Claude
-- 💻 CLI interface and optional local WebView UI
-- 🔧 Local inference with LLMs via Ollama (e.g., Code Llama)
+
+- 🧑‍💻 Chat with devmind ask any questions
+- 🧠 Memory for context-aware conversations
+- 📜 Explain source code files (`.go`, `.py`, `.js`...)
+- 📖 Summarize code, logs, or text
+- 🛠️ Generate shell commands, Dockerfiles, Makefiles
+- 🔌 Pluggable backends: Ollama, (in Development): OpenAI
 
 ## 📦 Example Usage
+
 ```bash
-$ devmind explain ./internal/api/handler.go
-"This file defines a REST API handler for managing user login tokens..."
+$ devmind chat what did we discussed in the last chat?
+"Last time, we discussed the new feature for user authentication..."
+$ devmind chat what is the purpose of this function?
+"This function handles user login by validating credentials and generating a token..."
 
-$ devmind fix ./crash.log
-"Postgres connection refused. Try checking DB_HOST or restart Docker."
+$ devmind generate create a Dockerfile for a Go web server
+"FROM golang:1.21...."
 
-$ devmind run 'generate a Dockerfile for this Go project'
-"Here is a Dockerfile optimized for Go 1.21 and multi-stage builds..."
+$ devmind explain --file main.go --line 10-15
+"This function is responsible for handling user login requests. It takes the username and password as input, validates them, and returns a token if successful..."
+
+$ devmind summarize --file main.go
+"This Go program initializes a context with signal handling for graceful shutdown. It sets up..."
 ```
 
 ## 📁 Project Structure
+
 ```
 devmind/
 ├── cmd/                  # CLI commands
@@ -36,44 +53,57 @@ devmind/
 │   ├── prompt/           # Prompt templates
 │   └── render/           # TUI/WebView output
 ├── internal/
-│   └── util/             # Shell wrappers, file utils
-├── scripts/              # Setup / inference tools
-├── models/               # Local models (GGUF/Ollama)
-├── webui/                # Optional HTML UI
+│   └── util/
+
+├───bin
+├───cmd                 # CLI commands
+│   └───ui              # UI elements (Spinner)
+├───config              # code for config
+├───internal
+│   ├───agent           # Agents for LLM
+│   │   ├───ollama
+│   │   ├───openai
+│   │   └───types
+│   ├───consumer        # LLM consumer
+│   ├───handlers        # handlers for different commands
+│   ├───logger          # logging and error handling
+│   ├───memory          # code for chat memory
+│   │   └───chat
+│   └───utils           # Shell wrappers, file utils
 └── main.go
 ```
 
 ## ⚙️ Requirements
-| Component         | Required For            |
-| ----------------- | ----------------------- |
-| Go 1.21+          | CLI Tool                |
-| OpenAI API Key    | GPT-3.5/4 access        |
-| Ollama            | Local LLM inference     |
-| Git               | Context diff extraction |
-| Docker (optional) | For containerized setup |
+
+| Component       | Required For                    |
+| --------------- | ------------------------------- |
+| Go 1.24+        | CLI Tool                        |
+| Ollama Endpoint | endpoint where Ollama is hosted |
 
 ## 💡 Features
-| Capability              | Description |
-|-------------------------|-------------|
-| ✅ Code summarization   | Explains Go/Python/JS files and diffs |
-| ✅ Log diagnosis        | Parses and interprets crash/error logs |
-| ✅ Script generation    | Creates shell commands, Dockerfiles, Makefiles |
-| ✅ Git context awareness| Uses diffs and staged files as context |
-| ✅ Env introspection    | Optionally includes sanitized env vars |
-| ✅ LLM flexibility      | Use OpenAI, Ollama, or local HTTP models |
-| ✅ Token-aware chunking | Dynamically breaks large files into model-friendly input |
-| ✅ Interactive REPL     | Chat with your project locally |
-| 🔒 Privacy-first        | No telemetry; local-only mode with Ollama available |
 
+| Capability            | Description                                     |
+| --------------------- | ----------------------------------------------- |
+| ✅ Chat with memory   | Context-aware conversations stored in memory    |
+| ✅ Response Streaming | Stream response as it is generated              |
+| ✅ Responsive UX      | Spinner to show progress and status updates     |
+| ✅ Code summarization | Explain Go/Python/JS files and code sections    |
+| ✅ Log diagnosis      | Parse and interpret crash/error logs            |
+| ✅ Script generation  | Generate shell commands, Dockerfiles, Makefiles |
+| ✅ File summarization | Summarize code, logs, or text files             |
+| ✅ Multi-backend LLMs | Use Ollama, (OpenAI, Claude planned)            |
+| 🔒 Privacy-first      | Full local-only mode available                  |
 
 ## 🧠 Supported LLMs
-- ✅ OpenAI (gpt-3.5, gpt-4)
-- ✅ Local Ollama models (CodeLlama, Mistral, Phi)
-- ✅ Anthropic (Claude) *(planned)*
 
+- ✅ Local Ollama models (CodeLlama, Mistral, Phi)
+- ✅ OpenAI (gpt-3.5, gpt-4) _(planned)_
+- ✅ Anthropic (Claude) _(planned)_
 
 ## 🧑‍💻 Author
+
 Made with Go, LLMs, and caffeine by [@vinit-chauhan](https://github.com/vinit-chauhan)
 
 ## 📄 License
+
 MIT © Vinit Chauhan
