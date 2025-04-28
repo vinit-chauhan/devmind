@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vinit-chauhan/devmind/cmd/ui"
 	"github.com/vinit-chauhan/devmind/internal/handlers"
-	"github.com/vinit-chauhan/devmind/internal/logger"
 	"github.com/vinit-chauhan/devmind/internal/memory"
 	"github.com/vinit-chauhan/devmind/internal/memory/chat"
 	"github.com/vinit-chauhan/devmind/internal/utils"
@@ -17,11 +16,22 @@ var summarizeCmd = &cobra.Command{
 	Short: "Summarize code from a file or stdin",
 	Long:  `Summarize the content provided in the command line arguments.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		var text string
 		ctx := cmd.Context()
 		spinner := ctx.Value("spinner").(*ui.Spinner)
 
-		text := strings.Join(args, " ")
-		logger.Debug("Message: " + text)
+		spinner.Start("Reading file...")
+		path, _ := cmd.Flags().GetString("file")
+		if path != "" {
+			content, err := utils.ReadFileContent(path, utils.LineRange{})
+			if err != nil {
+				return err
+			}
+			text = string(content)
+		} else {
+			text = strings.Join(args, " ")
+		}
+		spinner.Stop()
 
 		spinner.Start("Thinking...")
 		msgs := handlers.GenerateSummarizePrompt(text)
@@ -49,6 +59,6 @@ var summarizeCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(summarizeCmd)
+	summarizeCmd.Flags().StringP("file", "f", "", "File to summarize")
 	summarizeCmd.Flags().StringP("output", "o", "", "Output file to write the summary to")
-
 }
