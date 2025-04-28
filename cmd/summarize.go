@@ -9,20 +9,20 @@ import (
 	"github.com/vinit-chauhan/devmind/internal/logger"
 )
 
-var chatCmd = &cobra.Command{
-	Use:   "chat",
-	Short: "Chat with the mind",
-	Long:  `Chat with the mind. You can ask it anything and it will try to help you. It is a command line tool that can be used to generate, explain and fix code snippets, complete code, and more.`,
+var summarize = &cobra.Command{
+	Use:   "summarize",
+	Short: "Summarize code from a file or stdin",
+	Long:  `Summarize the content provided in the command line arguments.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 		spinner := ctx.Value("spinner").(*ui.Spinner)
 
-		message := strings.Join(args, " ")
-		logger.Debug("Message: " + message)
+		text := strings.Join(args, " ")
+		logger.Debug("Message: " + text)
 
 		spinner.Start("Thinking...")
-		msgs := handlers.GenerateChatPrompt(message)
-		_, err := handlers.Chat(ctx, msgs)
+		msgs := handlers.GenerateSummarizePrompt(text)
+		_, err := handlers.Summarize(ctx, msgs)
 		if err != nil {
 			return err
 		}
@@ -32,5 +32,5 @@ var chatCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(chatCmd)
+	rootCmd.AddCommand(summarize)
 }

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"strings"
 
 	"github.com/vinit-chauhan/devmind/config"
 	"github.com/vinit-chauhan/devmind/internal/agent"
@@ -11,8 +10,7 @@ import (
 	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
-func Explain(ctx context.Context, msgs []types.Message) (string, error) {
-
+func Summarize(ctx context.Context, msgs []types.Message) (string, error) {
 	backend, err := agent.GetBackend(config.Config)
 	if err != nil {
 		msg := "Error getting backend: " + err.Error()
@@ -30,16 +28,13 @@ func Explain(ctx context.Context, msgs []types.Message) (string, error) {
 	return resp.GetResponse(), nil
 }
 
-func GenerateExplainPrompt(content string) []types.Message {
-	prompt := strings.Builder{}
-	prompt.WriteString("Explain the following code snippet in detail:\n\n")
-	prompt.WriteString("```\n")
-	prompt.WriteString(content)
-	prompt.WriteString("```\n\n")
-	prompt.WriteString("Only provide a detailed explanation of the code snippet above.")
+func GenerateSummarizePrompt(content string) []types.Message {
+	prompt := "Summarize the following text or code in 3 to 4 sentences:\n\n"
+	prompt += "\n" + content + "\n\n"
+	prompt += "Only provide a summary of the code snippet above."
 
 	return []types.Message{
-		{Role: "system", Content: utils.SystemPrompt},
-		{Role: "user", Content: prompt.String()},
+		{Role: "system", Content: utils.SystemPromptSummarize},
+		{Role: "user", Content: prompt},
 	}
 }

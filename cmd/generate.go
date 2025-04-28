@@ -16,7 +16,7 @@ func init() {
 
 var generateCmd = &cobra.Command{
 	Use:     "generate",
-	Short:   "Generate code from a prompt",
+	Short:   "Generate code from a prompt (Experimental)",
 	Long:    `Generate code from prompt. You can specify the output file using the -o flag. If no file is specified, it will print to stdout.`,
 	Example: `devmind generate -p <prompt> -o <file>`,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -25,7 +25,7 @@ var generateCmd = &cobra.Command{
 
 		ctx := cmd.Context()
 		spinner := ctx.Value("spinner").(*ui.Spinner)
-		spinner.Start("Generating code...")
+		spinner.Start("Generating...")
 
 		msgs := handlers.GenerateCodePrompt(prompt, path != "")
 
