@@ -1,9 +1,13 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
 	"github.com/vinit-chauhan/devmind/cmd/ui"
 	"github.com/vinit-chauhan/devmind/internal/handlers"
+	"github.com/vinit-chauhan/devmind/internal/memory"
+	"github.com/vinit-chauhan/devmind/internal/memory/chat"
 	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
@@ -33,6 +37,12 @@ var generateCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
+		chats := []chat.Chat{
+			chat.New("user", prompt),
+			chat.New("assistant", strings.TrimSuffix(resp, "\n")),
+		}
+		memory.Brain.AddChatToMemory(chats)
 
 		if path != "" {
 			// write to file

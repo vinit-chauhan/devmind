@@ -7,6 +7,7 @@ import (
 	"github.com/vinit-chauhan/devmind/internal/agent"
 	"github.com/vinit-chauhan/devmind/internal/agent/types"
 	"github.com/vinit-chauhan/devmind/internal/logger"
+	"github.com/vinit-chauhan/devmind/internal/memory"
 	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
@@ -29,8 +30,9 @@ func Chat(ctx context.Context, msgs []types.Message) (string, error) {
 }
 
 func GenerateChatPrompt(prompt string) []types.Message {
+	systemPrompt := utils.SystemPrompt + "\n" + memory.Brain.GetMemoryPrompt()
 	return []types.Message{
-		{Role: "system", Content: utils.SystemPrompt},
+		{Role: "system", Content: systemPrompt},
 		{Role: "user", Content: prompt},
 	}
 }

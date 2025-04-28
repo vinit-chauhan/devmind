@@ -7,6 +7,8 @@ import (
 	"github.com/vinit-chauhan/devmind/cmd/ui"
 	"github.com/vinit-chauhan/devmind/internal/handlers"
 	"github.com/vinit-chauhan/devmind/internal/logger"
+	"github.com/vinit-chauhan/devmind/internal/memory"
+	"github.com/vinit-chauhan/devmind/internal/memory/chat"
 	"github.com/vinit-chauhan/devmind/internal/utils"
 )
 
@@ -27,6 +29,12 @@ var summarizeCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
+		chats := []chat.Chat{
+			chat.New("user", "summarize the content provided by user"),
+			chat.New("assistant", strings.TrimSuffix(resp, "\n")),
+		}
+		memory.Brain.AddChatToMemory(chats)
 
 		if file, _ := cmd.Flags().GetString("output"); file != "" {
 			// write to file
