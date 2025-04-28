@@ -45,16 +45,6 @@ $ devmind summarize --file main.go
 
 ```
 devmind/
-├── cmd/                  # CLI commands
-│   └── root.go
-├── pkg/
-│   ├── llm/              # LLM integrations (OpenAI, Ollama)
-│   ├── context/          # Env, Git diff, AST extractors
-│   ├── prompt/           # Prompt templates
-│   └── render/           # TUI/WebView output
-├── internal/
-│   └── util/
-
 ├───bin
 ├───cmd                 # CLI commands
 │   └───ui              # UI elements (Spinner)
@@ -84,7 +74,7 @@ devmind/
 
 | Capability            | Description                                     |
 | --------------------- | ----------------------------------------------- |
-| ✅ Chat with memory   | Context-aware conversations stored in memory    |
+| ✅ Chat Continuity    | Context-aware conversations stored in memory    |
 | ✅ Response Streaming | Stream response as it is generated              |
 | ✅ Responsive UX      | Spinner to show progress and status updates     |
 | ✅ Code summarization | Explain Go/Python/JS files and code sections    |
@@ -93,6 +83,20 @@ devmind/
 | ✅ File summarization | Summarize code, logs, or text files             |
 | ✅ Multi-backend LLMs | Use Ollama, (OpenAI, Claude planned)            |
 | 🔒 Privacy-first      | Full local-only mode available                  |
+
+## 🧠 Memory System
+
+Currently, DevMind has a **basic memory system** that stores chat history in a file. This allows for context-aware conversations and helps the AI remember previous interactions.
+
+Future plan: **Summarize and store chat history** for better context in conversations.
+
+- After each chat or command, DevMind **spawns a background summarizer**.
+- Summaries are stored inside `summaries/context.txt`.
+- Future prompts **inject recent memory** to improve response continuity.
+
+✅ Non-blocking summarization
+✅ Fast startup and exit
+✅ Future upgrade path for semantic search memory
 
 ## 🧠 Supported LLMs
 
