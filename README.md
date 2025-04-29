@@ -12,7 +12,6 @@
 | `devmind explain`   | Explain a source code file           |
 | `devmind summarize` | Summarize code, logs, or text        |
 | `devmind generate`  | Generate files based on descriptions |
-| ------------------- | ------------------------------------ |
 
 ## 🚀 Features
 
@@ -28,6 +27,7 @@
 ```bash
 $ devmind chat what did we discussed in the last chat?
 "Last time, we discussed the new feature for user authentication..."
+
 $ devmind chat what is the purpose of this function?
 "This function handles user login by validating credentials and generating a token..."
 
