@@ -1,0 +1,94 @@
+name: Build and Release
+
+permissions:
+  contents: write
+  packages: write
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  build:
+    name: Build binaries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, windows]
+        arch: [amd64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.24.0"
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          BINARY="app-${{ matrix.os }}-${{ matrix.arch }}"
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            BINARY="$BINARY.exe"
+          fi
+          go build -o $BINARY .
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.os }}-${{ matrix.arch }}
+          path: app-${{ matrix.os }}-${{ matrix.arch }}*
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Download Linux binary
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-linux-amd64
+
+      - name: Download Windows binary
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-windows-amd64
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v0.${{ github.run_number }}.0
+          release_name: Release v0.${{ github.run_number }}.0
+          draft: false
+          prerelease: false
+
+      - name: Upload Linux asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: app-linux-amd64
+          asset_name: app-linux-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: app-windows-amd64.exe
+          asset_name: app-windows-amd64.exe
+          asset_content_type: application/octet-stream
