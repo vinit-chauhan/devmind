@@ -1,6 +1,8 @@
 package config
 
 import (
+	"runtime"
+
 	"github.com/spf13/viper"
 
 	"github.com/vinit-chauhan/devmind/internal/logger"
@@ -11,8 +13,17 @@ func InitConfig() {
 	viper.SetConfigType("yaml")
 
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("$HOME/.devmind")
-	viper.AddConfigPath("/etc/devmind")
+	if runtime.GOOS == "windows" {
+		viper.AddConfigPath("%APPDATA%/devmind")
+		viper.AddConfigPath("%LOCALAPPDATA%/devmind")
+		viper.AddConfigPath("%PROGRAMDATA%/devmind")
+	} else if runtime.GOOS == "linux" {
+		viper.AddConfigPath("$XDG_CONFIG_HOME/devmind")
+		viper.AddConfigPath("$HOME/.devmind")
+		viper.AddConfigPath("/etc/devmind")
+	} else if runtime.GOOS == "darwin" {
+		viper.AddConfigPath("$HOME/Library/Application Support/devmind")
+	}
 
 	viper.AutomaticEnv()
 

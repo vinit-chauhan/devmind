@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -77,6 +78,12 @@ func readContent(path, lines string) ([]byte, error) {
 		if err != nil {
 			logger.Error("Error reading from stdin:" + err.Error())
 			return nil, err
+		}
+
+		fmt.Println("contend:", content)
+		if len(content) == 0 {
+			logger.Error("No content read from stdin")
+			return nil, fmt.Errorf("no content read from stdin")
 		}
 	} else {
 		//read from file

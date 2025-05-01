@@ -35,7 +35,7 @@ jobs:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
         run: |
-          BINARY="devmind-${{ matrix.os }}-${{ matrix.arch }}"
+          BINARY="devmind-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.arch }}"
           if [ "${{ matrix.os }}" = "windows" ]; then
             BINARY="$BINARY.exe"
           fi
