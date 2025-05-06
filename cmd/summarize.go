@@ -15,50 +15,52 @@ var summarizeCmd = &cobra.Command{
 	Use:   "summarize",
 	Short: "Summarize code from a file or stdin",
 	Long:  `Summarize the content provided in the command line arguments.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		var text string
-		ctx := cmd.Context()
-		spinner := ctx.Value("spinner").(*ui.Spinner)
-
-		spinner.Start("Reading file...")
-		path, _ := cmd.Flags().GetString("file")
-		if path != "" {
-			content, err := utils.ReadFileContent(path, utils.LineRange{})
-			if err != nil {
-				return err
-			}
-			text = string(content)
-		} else {
-			text = strings.Join(args, " ")
-		}
-		spinner.Stop()
-
-		spinner.Start("Thinking...")
-		msgs := handlers.GenerateSummarizePrompt(text)
-		resp, err := handlers.Summarize(ctx, msgs)
-		if err != nil {
-			return err
-		}
-
-		chats := []chat.Chat{
-			chat.New("user", "summarize the content provided by user"),
-			chat.New("assistant", strings.TrimSuffix(resp, "\n")),
-		}
-		memory.Brain.AddChatToMemory(chats)
-
-		if file, _ := cmd.Flags().GetString("output"); file != "" {
-			// write to file
-			err := utils.WriteToFile(file, []byte(resp))
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	},
+	RunE:  runSummarize,
 }
 
 func init() {
 	rootCmd.AddCommand(summarizeCmd)
 	summarizeCmd.Flags().StringP("file", "f", "", "File to summarize")
 	summarizeCmd.Flags().StringP("output", "o", "", "Output file to write the summary to")
+}
+
+func runSummarize(cmd *cobra.Command, args []string) error {
+	var text string
+	ctx := cmd.Context()
+	spinner := ctx.Value("spinner").(*ui.Spinner)
+
+	spinner.Start("Reading file...")
+	path, _ := cmd.Flags().GetString("file")
+	if path != "" {
+		content, err := utils.ReadFileContent(path, utils.LineRange{})
+		if err != nil {
+			return err
+		}
+		text = string(content)
+	} else {
+		text = strings.Join(args, " ")
+	}
+	spinner.Stop()
+
+	spinner.Start("Thinking...")
+	msgs := handlers.GenerateSummarizePrompt(text)
+	resp, err := handlers.Summarize(ctx, msgs)
+	if err != nil {
+		return err
+	}
+
+	chats := []chat.Chat{
+		chat.New("user", "summarize the content provided by user"),
+		chat.New("assistant", strings.TrimSuffix(resp, "\n")),
+	}
+	memory.Brain.AddChatToMemory(chats)
+
+	if file, _ := cmd.Flags().GetString("output"); file != "" {
+		// write to file
+		err := utils.WriteToFile(file, []byte(resp))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

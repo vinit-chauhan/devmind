@@ -95,7 +95,7 @@ func (m *Memory) GetMemoryPrompt() string {
 	return ""
 }
 
-func init() {
+func Init() {
 	// Check if the memory file exists
 	if _, err := os.Stat(MEMORY_FILE); os.IsNotExist(err) {
 		// Create the file if it doesn't exist

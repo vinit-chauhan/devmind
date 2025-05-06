@@ -4,21 +4,14 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
+
+	"github.com/vinit-chauhan/devmind/internal/constants"
 )
 
 var logger *log.Logger
 
-func init() {
-	log_path := "devmind.log"
-
-	if runtime.GOOS == "windows" {
-		log_path = os.Getenv("APPDATA") + "\\devmind.log"
-	} else if runtime.GOOS == "linux" {
-		log_path = "/var/logs/devmind.log"
-	} else if runtime.GOOS == "darwin" {
-		log_path = "/Library/Logs/devmind.log"
-	}
+func Init() {
+	log_path := constants.LOG_PATH
 
 	log_file, err := os.OpenFile(log_path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {

@@ -8,7 +8,9 @@ import (
 	"github.com/vinit-chauhan/devmind/cmd"
 	"github.com/vinit-chauhan/devmind/cmd/ui"
 	"github.com/vinit-chauhan/devmind/config"
+	"github.com/vinit-chauhan/devmind/internal/constants"
 	"github.com/vinit-chauhan/devmind/internal/logger"
+	"github.com/vinit-chauhan/devmind/internal/memory"
 )
 
 func main() {
@@ -17,8 +19,14 @@ func main() {
 	ctx = context.WithValue(ctx, "done", done)
 	ctx = context.WithValue(ctx, "spinner", ui.NewSpinner(ctx))
 
+	// Set os specific variables
+	constants.Init()
+
 	// Initialize the configuration
-	config.InitConfig()
+	logger.Init()
+	config.Init()
+	memory.Init()
+
 	// Execute the root command
 	go cmd.Execute(ctx, stop)
 

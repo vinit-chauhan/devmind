@@ -18,45 +18,7 @@ var explainCmd = &cobra.Command{
 	Short:   "Explain code from a file or stdin",
 	Long:    `Explain code from a file or stdin. You can specify the line range to explain using the -l flag. If no file is specified, it will read from stdin.`,
 	Example: `devmind explain -f <file> -l <line range>`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		ctx := cmd.Context()
-		spinner := ctx.Value("spinner").(*ui.Spinner)
-
-		lines, _ := cmd.Flags().GetString("lines")
-		path, _ := cmd.Flags().GetString("file")
-
-		spinner.Start("Reading file...")
-		content, err := readContent(path, lines)
-		if err != nil {
-			return err
-		}
-		logger.Debug("Generating prompt...")
-		msgs := handlers.GenerateExplainPrompt(string(content))
-		spinner.Stop()
-
-		logger.Debug("Explaining the content...")
-		spinner.Start("Thinking...")
-		resp, err := handlers.Explain(ctx, msgs)
-		if err != nil {
-			return err
-		}
-
-		chats := []chat.Chat{
-			chat.New("user", "Explain the content of the file given by user"),
-			chat.New("assistant", strings.TrimSuffix(resp, "\n")),
-		}
-		memory.Brain.AddChatToMemory(chats)
-
-		if file, _ := cmd.Flags().GetString("output"); file != "" {
-			// write to file
-			err := utils.WriteToFile(file, []byte(resp))
-			if err != nil {
-				return err
-			}
-		}
-
-		return nil
-	},
+	RunE:    runExplain,
 }
 
 func init() {
@@ -101,4 +63,44 @@ func readContent(path, lines string) ([]byte, error) {
 	}
 
 	return content, nil
+}
+
+func runExplain(cmd *cobra.Command, args []string) error {
+	ctx := cmd.Context()
+	spinner := ctx.Value("spinner").(*ui.Spinner)
+
+	lines, _ := cmd.Flags().GetString("lines")
+	path, _ := cmd.Flags().GetString("file")
+
+	spinner.Start("Reading file...")
+	content, err := readContent(path, lines)
+	if err != nil {
+		return err
+	}
+	logger.Debug("Generating prompt...")
+	msgs := handlers.GenerateExplainPrompt(string(content))
+	spinner.Stop()
+
+	logger.Debug("Explaining the content...")
+	spinner.Start("Thinking...")
+	resp, err := handlers.Explain(ctx, msgs)
+	if err != nil {
+		return err
+	}
+
+	chats := []chat.Chat{
+		chat.New("user", "Explain the content of the file given by user"),
+		chat.New("assistant", strings.TrimSuffix(resp, "\n")),
+	}
+	memory.Brain.AddChatToMemory(chats)
+
+	if file, _ := cmd.Flags().GetString("output"); file != "" {
+		// write to file
+		err := utils.WriteToFile(file, []byte(resp))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

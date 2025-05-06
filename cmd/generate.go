@@ -23,34 +23,36 @@ var generateCmd = &cobra.Command{
 	Short:   "Generate code from a prompt (Experimental)",
 	Long:    `Generate code from prompt. You can specify the output file using the -o flag. If no file is specified, it will print to stdout.`,
 	Example: `devmind generate -p <prompt> -o <file>`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		prompt, _ := cmd.Flags().GetString("prompt")
-		path, _ := cmd.Flags().GetString("output")
+	RunE:    runGenerate,
+}
 
-		ctx := cmd.Context()
-		spinner := ctx.Value("spinner").(*ui.Spinner)
-		spinner.Start("Generating...")
+func runGenerate(cmd *cobra.Command, args []string) error {
+	prompt, _ := cmd.Flags().GetString("prompt")
+	path, _ := cmd.Flags().GetString("output")
 
-		msgs := handlers.GenerateCodePrompt(prompt, path != "")
+	ctx := cmd.Context()
+	spinner := ctx.Value("spinner").(*ui.Spinner)
+	spinner.Start("Generating...")
 
-		resp, err := handlers.GenerateCode(ctx, msgs)
+	msgs := handlers.GenerateCodePrompt(prompt, path != "")
+
+	resp, err := handlers.GenerateCode(ctx, msgs)
+	if err != nil {
+		return err
+	}
+
+	chats := []chat.Chat{
+		chat.New("user", prompt),
+		chat.New("assistant", strings.TrimSuffix(resp, "\n")),
+	}
+	memory.Brain.AddChatToMemory(chats)
+
+	if path != "" {
+		// write to file
+		err = utils.WriteToFile(path, []byte(resp))
 		if err != nil {
 			return err
 		}
-
-		chats := []chat.Chat{
-			chat.New("user", prompt),
-			chat.New("assistant", strings.TrimSuffix(resp, "\n")),
-		}
-		memory.Brain.AddChatToMemory(chats)
-
-		if path != "" {
-			// write to file
-			err = utils.WriteToFile(path, []byte(resp))
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	},
+	}
+	return nil
 }
