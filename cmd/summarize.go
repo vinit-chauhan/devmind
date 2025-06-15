@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -29,6 +30,10 @@ var summarizeCmd = &cobra.Command{
 			}
 			text = string(content)
 		} else {
+			if len(args) == 0 {
+				return errors.New("no text provided")
+			}
+
 			text = strings.Join(args, " ")
 		}
 		spinner.Stop()

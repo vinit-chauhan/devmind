@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -24,6 +24,10 @@ var explainCmd = &cobra.Command{
 
 		lines, _ := cmd.Flags().GetString("lines")
 		path, _ := cmd.Flags().GetString("file")
+
+		if len(args) == 1 {
+			path = args[0]
+		}
 
 		spinner.Start("Reading file...")
 		content, err := readContent(path, lines)
@@ -80,10 +84,9 @@ func readContent(path, lines string) ([]byte, error) {
 			return nil, err
 		}
 
-		fmt.Println("contend:", content)
 		if len(content) == 0 {
 			logger.Error("No content read from stdin")
-			return nil, fmt.Errorf("no content read from stdin")
+			return nil, errors.New("no content read from stdin")
 		}
 	} else {
 		//read from file

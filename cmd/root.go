@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/spf13/cobra"
 	"github.com/vinit-chauhan/devmind/internal/logger"
@@ -23,7 +22,6 @@ func Execute(ctx context.Context, stop context.CancelFunc) {
 	}()
 
 	if err := rootCmd.ExecuteContext(ctx); err != nil {
-		fmt.Println(err)
 		logger.Error("Error executing command: " + err.Error())
 		return
 	}
