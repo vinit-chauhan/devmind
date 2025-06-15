@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/vinit-chauhan/devmind/internal/agent/types"
 	"github.com/vinit-chauhan/devmind/internal/logger"
 	"github.com/vinit-chauhan/devmind/internal/memory/chat"
 )
@@ -79,13 +80,26 @@ func (m *Memory) GetLast(n int) []chat.Chat {
 	return m.Chats[len(m.Chats)-n:]
 }
 
+func (m *Memory) GetChatMessageHistory() []types.Message {
+	chatHistory := m.GetLast(HISTORY_LENGTH)
+
+	messages := []types.Message{}
+	for _, chat := range chatHistory {
+		messages = append(messages, types.Message{
+			Role:    chat.Role,
+			Content: chat.Content,
+		})
+	}
+	return messages
+}
+
 func (m *Memory) GetMemoryPrompt() string {
 	chatHistory := m.GetLast(HISTORY_LENGTH)
 
 	if len(chatHistory) > 0 {
 		prompt := strings.Builder{}
 
-		prompt.WriteString("## CHAT HISTORY:\n")
+		prompt.WriteString("Chat History:\n")
 		for _, chat := range chatHistory {
 			prompt.WriteString(chat.String())
 			prompt.WriteString("\n")

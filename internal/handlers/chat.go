@@ -30,9 +30,10 @@ func Chat(ctx context.Context, msgs []types.Message) (string, error) {
 }
 
 func GenerateChatPrompt(prompt string) []types.Message {
-	systemPrompt := utils.SystemPrompt + "\n" + memory.Brain.GetMemoryPrompt()
+	systemPrompt := utils.SystemPrompt
 	return []types.Message{
 		{Role: "system", Content: systemPrompt},
+		{Role: "assistant", Content: memory.Brain.GetMemoryPrompt()},
 		{Role: "user", Content: prompt},
 	}
 }
