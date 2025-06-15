@@ -14,6 +14,7 @@ func init() {
 
 	if runtime.GOOS == "windows" {
 		log_path = os.Getenv("APPDATA") + "\\devmind.log"
+		log_path = "devmind.log"
 	} else if runtime.GOOS == "linux" {
 		log_path = "/var/logs/devmind.log"
 	} else if runtime.GOOS == "darwin" {

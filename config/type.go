@@ -4,7 +4,7 @@ var Config AppConfig
 
 type OpenAIConfig struct {
 	ApiKey string `mapstructure:"api_key,omitempty"`
-	ApiUrl string `mapstructure:"api_url,omitempty"`
+	Model  string `mapstructure:"model,omitempty"`
 }
 
 type OllamaConfig struct {

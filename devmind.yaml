@@ -1,8 +1,8 @@
-backend: "ollama" # Options: [ openai, ollama ]
+backend: "openai" # Options: [ openai, ollama ]
 
 openai:
   api_key: "tests"
-  api_url: "https://api.openai.com/v1/chat/completions"
+  model: "gpt-4o-mini"
 
 ollama:
   host: "http://localhost:11434/"

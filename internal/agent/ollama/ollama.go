@@ -32,7 +32,7 @@ func (b *OllamaBackend) Respond(ctx context.Context, msgs []types.Message) (type
 	<-doneCh
 
 	parsed := &OllamaChatResponse{
-		Response: api.Message{
+		Response: types.Message{
 			Role:    "assistant",
 			Content: full.String(),
 		},

@@ -29,8 +29,8 @@ func NewOllamaBackend(conf config.OllamaConfig) types.Backend {
 }
 
 type OllamaChatResponse struct {
-	Response api.Message `json:"message"`
-	Done     bool        `json:"done"`
+	Response types.Message `json:"message"`
+	Done     bool          `json:"done"`
 }
 
 func (r *OllamaChatResponse) IsDone() bool {
